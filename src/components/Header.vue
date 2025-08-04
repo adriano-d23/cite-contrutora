@@ -30,7 +30,7 @@ onUnmounted(() => {
       <div class="flex justify-between items-center py-4">
         <!-- Logo -->
         <div class="flex items-center">
-          <img src="/images/logos/logo.png" alt="Cite Engenharia" class="h-8 w-auto mr-3" />
+          <img src="/images/logos/logo.png" alt="Cite Engenharia" class="h-12 md:h-8 w-auto mr-3" />
           <span
             class="font-bold text-xl transition-colors duration-200"
             :class="isScrolled ? 'text-gray-800' : 'text-white'"
@@ -50,6 +50,17 @@ onUnmounted(() => {
             "
           >
             HOME
+          </a>
+          <a
+            href="#projetos"
+            class="font-semibold transition-colors duration-200 drop-shadow-lg"
+            :class="
+              isScrolled
+                ? 'text-gray-800 hover:text-cite-primary'
+                : 'text-white hover:text-cite-secondary'
+            "
+          >
+            NOSSOS PROJETOS
           </a>
           <a
             href="#sobre"
@@ -124,6 +135,18 @@ onUnmounted(() => {
             @click="isMenuOpen = false"
           >
             HOME
+          </a>
+          <a
+            href="#projetos"
+            class="font-semibold transition-colors duration-200 drop-shadow-lg"
+            :class="
+              isScrolled
+                ? 'text-gray-800 hover:text-cite-primary'
+                : 'text-white hover:text-cite-secondary'
+            "
+            @click="isMenuOpen = false"
+          >
+            NOSSOS PROJETOS
           </a>
           <a
             href="#sobre"

@@ -2,8 +2,11 @@
 import Header from './components/Header.vue'
 import { ref, onMounted, onUnmounted } from 'vue'
 
-// Dados do carrossel
+// Dados do carrossel de imagens
 const carouselImages = [
+  '/images/WhatsApp Image 2025-08-04 at 17.55.08.jpeg',
+  '/images/WhatsApp Image 2025-08-04 at 17.55.08 (1).jpeg',
+  '/images/WhatsApp Image 2025-08-04 at 17.55.08 (2).jpeg',
   '/images/WhatsApp Image 2025-07-28 at 10.09.15.jpeg',
   '/images/WhatsApp Image 2025-07-28 at 10.09.18.jpeg',
   '/images/WhatsApp Image 2025-07-28 at 10.09.20.jpeg',
@@ -18,9 +21,33 @@ const carouselImages = [
   '/images/WhatsApp Image 2025-07-28 at 10.09.39.jpeg',
 ]
 
+// Dados do carrossel de vídeos
+const carouselVideos = [
+  '/videos/WhatsApp Video 2025-08-04 at 17.54.05.mp4',
+  '/videos/WhatsApp Video 2025-08-04 at 17.54.05 (1).mp4',
+  '/videos/WhatsApp Video 2025-08-04 at 17.54.05 (2).mp4',
+  '/videos/WhatsApp Video 2025-08-04 at 17.54.05 (3).mp4',
+  '/videos/WhatsApp Video 2025-08-04 at 17.54.06.mp4',
+  '/videos/WhatsApp Video 2025-08-04 at 17.54.06 (1).mp4',
+  '/videos/WhatsApp Video 2025-08-04 at 17.54.06 (2).mp4',
+  '/videos/WhatsApp Video 2025-08-04 at 17.54.06 (3).mp4',
+  '/videos/WhatsApp Video 2025-08-04 at 17.54.06 (4).mp4',
+  '/videos/WhatsApp Video 2025-08-04 at 17.54.07.mp4',
+  '/videos/WhatsApp Video 2025-08-04 at 17.54.07 (1).mp4',
+  '/videos/WhatsApp Video 2025-08-04 at 17.54.07 (2).mp4',
+  '/videos/WhatsApp Video 2025-08-04 at 17.54.07 (3).mp4',
+  '/videos/WhatsApp Video 2025-08-04 at 17.54.08.mp4',
+]
+
 const currentSlide = ref(0)
+const currentVideoSlide = ref(0)
 const isAutoPlaying = ref(true)
+const isVideoAutoPlaying = ref(true)
+const showVideoModal = ref(false)
+const selectedVideo = ref('')
+const videoLoaded = ref(false)
 let autoPlayInterval = null
+let videoAutoPlayInterval = null
 
 // Funções do carrossel
 const nextSlide = () => {
@@ -55,9 +82,58 @@ const stopAutoPlay = () => {
   }
 }
 
+// Funções do carrossel 3D
+const nextVideoSlide = () => {
+  currentVideoSlide.value = (currentVideoSlide.value + 1) % carouselVideos.length
+}
+
+const prevVideoSlide = () => {
+  currentVideoSlide.value =
+    currentVideoSlide.value === 0 ? carouselVideos.length - 1 : currentVideoSlide.value - 1
+}
+
+const goToVideoSlide = (index) => {
+  currentVideoSlide.value = index
+}
+
+const toggleVideoAutoPlay = () => {
+  isVideoAutoPlaying.value = !isVideoAutoPlaying.value
+  if (isVideoAutoPlaying.value) {
+    startVideoAutoPlay()
+  } else {
+    stopVideoAutoPlay()
+  }
+}
+
+const startVideoAutoPlay = () => {
+  videoAutoPlayInterval = setInterval(nextVideoSlide, 4000)
+}
+
+const stopVideoAutoPlay = () => {
+  if (videoAutoPlayInterval) {
+    clearInterval(videoAutoPlayInterval)
+    videoAutoPlayInterval = null
+  }
+}
+
+const openVideoModal = (videoSrc) => {
+  selectedVideo.value = videoSrc
+  showVideoModal.value = true
+  videoLoaded.value = false
+  document.body.style.overflow = 'hidden'
+}
+
+const closeVideoModal = () => {
+  showVideoModal.value = false
+  selectedVideo.value = ''
+  videoLoaded.value = false
+  document.body.style.overflow = 'auto'
+}
+
 // Lifecycle hooks
 onMounted(() => {
   startAutoPlay()
+  startVideoAutoPlay()
 
   // Observer para animações de scroll
   const observerOptions = {
@@ -84,6 +160,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   stopAutoPlay()
+  stopVideoAutoPlay()
 })
 </script>
 
@@ -139,6 +216,7 @@ onUnmounted(() => {
 
     <!-- Carrossel de Projetos -->
     <section
+      id="projetos"
       class="py-20 relative overflow-hidden bg-gradient-to-br from-gray-50 to-white scroll-section"
     >
       <div class="container mx-auto px-4 relative z-10 max-w-full">
@@ -272,6 +350,170 @@ onUnmounted(() => {
         </div>
       </div>
     </section>
+
+    <!-- Seção Galeria de Obras -->
+    <section class="py-12 bg-white scroll-section netflix-section">
+      <!-- Efeito de fundo massa -->
+      <div
+        class="absolute inset-0 bg-gradient-to-r from-gray-50 via-white to-gray-50 opacity-0 netflix-bg-effect"
+      ></div>
+      <div class="container mx-auto px-4 max-w-6xl">
+        <div class="text-center mb-16 scroll-animate">
+          <h2 class="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-800 mb-6">
+            Galeria de
+            <span
+              class="bg-gradient-to-r from-cite-primary to-cite-secondary bg-clip-text text-transparent"
+            >
+              Obras
+            </span>
+          </h2>
+          <p class="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+            Explore nossos projetos em movimento. Clique nos vídeos para visualizar em tela cheia.
+          </p>
+        </div>
+
+        <!-- Carrossel Netflix Style -->
+        <div
+          class="relative overflow-hidden scroll-animate-delay-1 netflix-carousel-container group"
+        >
+          <!-- Container do carrossel -->
+          <div
+            class="flex space-x-4 pb-4 netflix-carousel"
+            :style="{ transform: `translateX(-${currentVideoSlide * 320}px)` }"
+          >
+            <div
+              v-for="(video, index) in carouselVideos"
+              :key="index"
+              class="video-card-netflix flex-shrink-0 cursor-pointer group"
+              @click="openVideoModal(video)"
+            >
+              <div class="relative overflow-hidden rounded-lg shadow-lg">
+                <video
+                  :src="video"
+                  class="w-80 h-48 md:w-96 md:h-56 lg:w-[400px] lg:h-[225px] object-cover transition-all duration-300 group-hover:scale-105"
+                  muted
+                  loop
+                  preload="metadata"
+                />
+                <!-- Overlay com ícone de play -->
+                <div
+                  class="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/50 transition-all duration-300"
+                >
+                  <div
+                    class="bg-white/20 backdrop-blur-sm rounded-full p-3 group-hover:scale-110 transition-transform duration-300 opacity-0 group-hover:opacity-100"
+                  >
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </div>
+                <!-- Número do vídeo -->
+                <div
+                  class="absolute top-2 left-2 bg-black/80 text-white text-xs px-2 py-1 rounded-full font-medium"
+                >
+                  {{ index + 1 }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botões de navegação -->
+          <button
+            @click="prevVideoSlide"
+            class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 backdrop-blur-sm hover:bg-black/70 text-white p-2 rounded-full transition-all duration-300 hover:scale-110 z-20 opacity-0 group-hover:opacity-100"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              ></path>
+            </svg>
+          </button>
+
+          <button
+            @click="nextVideoSlide"
+            class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 backdrop-blur-sm hover:bg-black/70 text-white p-2 rounded-full transition-all duration-300 hover:scale-110 z-20 opacity-0 group-hover:opacity-100"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              ></path>
+            </svg>
+          </button>
+
+          <!-- Indicadores -->
+          <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+            <button
+              v-for="(video, index) in carouselVideos"
+              :key="index"
+              @click="goToVideoSlide(index)"
+              class="w-2 h-2 rounded-full transition-all duration-300"
+              :class="
+                index === currentVideoSlide
+                  ? 'bg-cite-primary shadow-lg shadow-cite-primary/50 scale-150'
+                  : 'bg-gray-300 hover:bg-gray-400'
+              "
+            ></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal de Vídeo -->
+    <div
+      v-if="showVideoModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm animate-modalFadeIn"
+      @click="closeVideoModal"
+    >
+      <div class="relative max-w-4xl w-full mx-4" @click.stop>
+        <!-- Botão de fechar -->
+        <button
+          @click="closeVideoModal"
+          class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors duration-300 z-10"
+        >
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+        </button>
+
+        <!-- Container do vídeo -->
+        <div class="relative bg-black rounded-2xl overflow-hidden shadow-2xl">
+          <!-- Loading spinner -->
+          <div
+            class="absolute inset-0 flex items-center justify-center bg-black/50 z-10"
+            v-if="!videoLoaded"
+          >
+            <div class="text-white text-center">
+              <div
+                class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"
+              ></div>
+              <p class="text-lg">Carregando vídeo...</p>
+            </div>
+          </div>
+
+          <video
+            :src="selectedVideo"
+            class="w-full h-auto max-h-[80vh] object-contain"
+            controls
+            autoplay
+            muted
+            loop
+            @loadeddata="videoLoaded = true"
+            @loadstart="videoLoaded = false"
+          />
+        </div>
+      </div>
+    </div>
 
     <!-- Seção Sobre Nós -->
     <section id="sobre" class="py-20 bg-gray-50 scroll-section overflow-hidden">
@@ -912,5 +1154,155 @@ onUnmounted(() => {
 /* Scroll suave para links internos */
 html {
   scroll-behavior: smooth;
+}
+
+/* Estilos específicos para o carrossel Netflix */
+.netflix-carousel-container {
+  position: relative;
+  overflow: hidden;
+  padding: 0 20px;
+}
+
+.netflix-carousel {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.video-card-netflix {
+  transition: all 0.3s ease;
+  transform-origin: center center;
+}
+
+.video-card-netflix:hover {
+  transform: scale(1.05);
+  z-index: 10;
+}
+
+/* Efeito massa quando chegar na seção */
+@keyframes netflixEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(100px) scale(0.8);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateY(50px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.netflix-carousel-container {
+  animation: netflixEntrance 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Efeito massa para a seção Netflix */
+.netflix-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.netflix-bg-effect {
+  transition: opacity 0.8s ease;
+}
+
+.netflix-section.visible .netflix-bg-effect {
+  opacity: 1;
+  animation: netflixBgEffect 2s ease-out;
+}
+
+@keyframes netflixBgEffect {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) rotate(-2deg);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1) rotate(1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Efeito de hover nos botões */
+.netflix-carousel-container:hover .opacity-0 {
+  opacity: 1 !important;
+}
+
+/* Responsividade para o carrossel Netflix */
+@media (max-width: 640px) {
+  .video-card-netflix {
+    transform: scale(0.9);
+  }
+}
+
+@media (max-width: 768px) {
+  .video-card-netflix {
+    transform: scale(0.95);
+  }
+}
+
+/* Animação de entrada para o modal */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-modalFadeIn {
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+/* Efeito de hover para os vídeos */
+.video-thumbnail-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.video-thumbnail-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.video-thumbnail-container:hover::before {
+  left: 100%;
+}
+
+/* Responsividade para o carrossel 3D */
+@media (max-width: 640px) {
+  .carousel-3d-container {
+    perspective: 800px;
+  }
+
+  .video-card-3d {
+    transform: scale(0.8) !important;
+  }
+
+  .video-thumbnail-3d {
+    width: 280px !important;
+    height: 168px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .video-thumbnail-3d {
+    width: 320px !important;
+    height: 192px !important;
+  }
 }
 </style>
